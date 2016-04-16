@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="author" content="Rei, @chloerei"><title>Rails 前端思想</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="reveal.js/css/theme/black.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section><h1>Rails 前端思想</h1><p><small>Rei, @chloerei</small></p></section><section><section><h2>谈谈前端</h2></section><section><div class="imageblock" style=""><div class="content"><img src="images/javascript-frameworks.png" alt="javascript frameworks"></div></div></section><section><div class="imageblock" style=""><div class="content"><img src="images/rewrite.jpg" alt="rewrite" width="480"></div></div></section><section><h2>前后端分离是未来？</h2></section><section><div class="ulist"><ul><li><p>SEO</p></li><li><p>首页渲染速度</p></li><li><p>API 整合</p></li></ul></div></section><section><div class="paragraph"><p>Server-side Rendering!</p></div></section><section><div class="imageblock" style=""><div class="content"><img src="images/twitter-logo.png" alt="twitter logo" width="200px"></div></div>
+<div class="paragraph"><p>Improving performance on twitter.com</p></div>
+<div class="paragraph"><p><a href="https://blog.twitter.com/2012/improving-performance-on-twittercom" class="bare">https://blog.twitter.com/2012/improving-performance-on-twittercom</a></p></div></section><section><div class="imageblock" style=""><div class="content"><img src="images/emberjs-logo.png" alt="emberjs logo" width="200px"></div></div>
+<div class="paragraph"><p>Ember.js: Inside FastBoot: The Road to Server-Side Rendering</p></div>
+<div class="paragraph"><p><a href="http://emberjs.com/blog/2014/12/22/inside-fastboot-the-road-to-server-side-rendering.html" class="bare">http://emberjs.com/blog/2014/12/22/inside-fastboot-the-road-to-server-side-rendering.html</a></p></div></section><section><div class="imageblock" style=""><div class="content"><img src="images/reactjs-logo.png" alt="reactjs logo" width="200px"></div></div>
+<div class="paragraph"><p><code>ReactDOMServer.renderToString</code></p></div>
+<div class="paragraph"><p><a href="http://facebook.github.io/react/docs/top-level-api.html#reactdomserver.rendertostring" class="bare">http://facebook.github.io/react/docs/top-level-api.html#reactdomserver.rendertostring</a></p></div></section><section><h2>JavaScript Server 是前端吗？</h2></section><section><h2>前端相对论</h2><div class="quoteblock"><blockquote><div class="paragraph"><p>相对整个系统而言，靠近用户的一端是前端。</p></div></blockquote></div></section><section><div class="paragraph"><p><span class="image"><img src="images/javascript-hole.png" alt="javascript hole" width="200px"></span></p></div></section><section><div class="paragraph"><p>#JavaScriptEE</p></div>
+<div class="imageblock" style=""><div class="content"><img src="images/javascript-ee.jpg" alt="javascript ee"></div></div></section></section>
+<section><section><h2>认识 Rails</h2><div class="ulist"><ul><li><p>全栈式的 Web 应用框架</p></li><li><p>不要自我重复（DRY）</p></li><li><p>多约定，少配置</p></li></ul></div></section><section><h2>前端主要组件</h2><div class="ulist"><ul><li><p>UJS</p></li><li><p>SJR</p></li><li><p>Assets Pipeline</p></li><li><p>Turbolinks</p></li></ul></div></section></section>
+<section><section><h2>UJS</h2><div class="paragraph"><p>Unobtrusive JavaScript</p></div></section><section><h2>jquery-ujs</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="coffeescript language-coffeescript">#= jquery-ujs</code></pre></div></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="html language-html">&lt;a href="..." data-remote="true" data-method="delete"&gt;Delete this entry&lt;/a&gt;</code></pre></div></div></section><section><div class="ulist"><ul><li><p><code>data-remote</code></p></li><li><p><code>data-method</code></p></li><li><p><code>data-confirm</code></p></li><li><p><code>data-disable-with</code></p></li><li><p><code>data-type</code></p></li><li><p>&#8230;&#8203;</p></li></ul></div></section><section><h2>Bootstrap</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="html language-html">&lt;!-- Button trigger modal --&gt;
+&lt;button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal"&gt;
+  Launch demo modal
+&lt;/button&gt;</code></pre></div></div></section><section><h2>自定义 UJS 属性</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="coffeescript language-coffeescript">$(document).on 'click', '[data-alert]', -&gt;
+  alert($(this).data('alert'))</code></pre></div></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="html language-html">&lt;a data-alert="Message"&gt;Show message&lt;/a&gt;</code></pre></div></div></section></section>
+<section><section><h2>SJR</h2><div class="paragraph"><p>Server-generated JavaScript Responses</p></div></section><section><h2>0) 服务端渲染。</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="erb language-erb">&lt;h1&gt;All messages:&lt;/h1&gt;
+&lt;%# renders messages/_message.html.erb %&gt;
+&lt;%= render @messages %&gt;</code></pre></div></div></section><section><h2>1) 通过 Ajax （UJS）提交表单。</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="erb language-erb">&lt;% form_for @project.messages.new, remote: true do |form| %&gt;
+  ...
+  &lt;%= form.submit "Send message" %&gt;
+&lt;% end %&gt;</code></pre></div></div></section><section><h2>2) 服务端保存数据。</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="ruby language-ruby">class MessagesController &lt; ActionController::Base
+  def create
+    @message = @project.messages.create!(message_params)
+
+    respond_to do |format|
+      format.html { redirect_to @message } # no js fallback
+      format.js   # just renders messages/create.js.erb
+    end
+  end
+end</code></pre></div></div></section><section><h2>3) 服务端返回内嵌 HTML 的 JavaScript。</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="erb language-erb">&lt;%# renders messages/_message.html.erb %&gt;
+$('#messages').prepend('&lt;%=j render @message %&gt;');
+$('#&lt;%= dom_id @message %&gt;').highlight();</code></pre></div></div></section><section><div class="ulist"><ul><li><p>模版重用。</p></li><li><p>客户端计算需求少。</p></li><li><p>单向数据流。</p></li></ul></div></section></section>
+<section><section><h2>Assets Pipeline</h2></section><section><div class="ulist"><ul><li><p>打包静态资源，在文件名后添加指纹。</p></li><li><p>压缩静态资源。</p></li><li><p>使用预处理程序。</p></li></ul></div></section><section><div class="paragraph"><p>大公司里怎样开发和部署前端代码？</p></div>
+<div class="paragraph"><p><a href="https://www.zhihu.com/question/20790576/answer/32602154" class="bare">https://www.zhihu.com/question/20790576/answer/32602154</a></p></div></section><section><div class="listingblock"><div class="content"><pre class="highlight"><code class="coffeescript language-coffeescript">#= require jquery
+#= require jquery_ujs</code></pre></div></div></section><section><div class="listingblock"><div class="content"><pre class="highlight"><code class="ruby language-ruby">Rails.application.config.assets.precompile += ['admin.js', 'admin.css', 'swfObject.js']</code></pre></div></div></section><section><h2>Assets Pipeline 是接口</h2><div class="ulist"><ul><li class="fragment"><p>browserify-rails</p></li><li class="fragment"><p>autoprefixer-rails</p></li><li class="fragment"><p>sprockets-es6</p></li></ul></div></section></section>
+<section><section><h2>Turbolinks</h2></section><section><div class="olist arabic"><ol class="arabic"><li><p>拦截 <code>&lt;a&gt;</code> 点击事件，发起 AJAX 请求。</p></li><li><p>服务端照常返回整页 HTML 内容。</p></li><li><p>Turbolinks 替换页面的 <code>&lt;title&gt;</code> 和 <code>&lt;body&gt;</code> 内容。</p></li></ol></div></section><section><div class="paragraph"><p>无 Turbolinks：</p></div>
+<div class="imageblock" style=""><div class="content"><img src="images/without-turbolinks.png" alt="without turbolinks"></div></div>
+<div class="paragraph"><p>有 Turbolinks：</p></div>
+<div class="imageblock" style=""><div class="content"><img src="images/with-turbolinks.png" alt="with turbolinks"></div></div></section><section><div class="imageblock" style=""><div class="content"><img src="images/shopify-logo.png" alt="shopify logo" width="200px"></div></div>
+<div class="paragraph"><p>Rebuilding the Shopify Admin: Improving Developer Productivity by Deleting 28,000 lines of JavaScript</p></div>
+<div class="paragraph"><p><a href="https://engineering.shopify.com/17489056-rebuilding-the-shopify-admin-improving-developer-productivity-by-deleting-28-000-lines-of-javascript" class="bare">https://engineering.shopify.com/17489056-rebuilding-the-shopify-admin-improving-developer-productivity-by-deleting-28-000-lines-of-javascript</a></p></div></section><section><div class="paragraph"><p>single-page application (SPA)</p></div></section><section><div class="paragraph"><p>问题：DOMContentLoaded 或 jQuery.ready() 只触发一次。</p></div>
+<div class="paragraph"><p>解答：绑定 Turbolinks 事件，例如 <code>page:change</code>。</p></div></section><section><div class="paragraph"><p>问题：Turbolinks 有页面缓存，后退时重复绑定事件。</p></div>
+<div class="paragraph"><p>解答：让绑定操作幂等，或者绑定到 document。</p></div></section><section><div class="paragraph"><p>问题：静态资源不更新。</p></div>
+<div class="paragraph"><p>解答：打包到一个静态文件。</p></div></section><section><h2>RTFM</h2><div class="paragraph"><p><a href="https://github.com/turbolinks/turbolinks-classic/tree/2-5-stable" class="bare">https://github.com/turbolinks/turbolinks-classic/tree/2-5-stable</a></p></div></section><section><div class="imageblock" style=""><div class="content"><img src="images/read-the-source-luke.jpg" alt="read the source luke"></div></div></section><section><h2>Turbolinks 5</h2><div class="paragraph"><p><span class="image"><img src="images/turbolinks-5.gif" alt="turbolinks 5"></span></p></div></section></section>
+<section><h2>Rails 前端方案</h2><div class="ulist"><ul><li class="fragment"><p>服务端渲染为主</p></li><li class="fragment"><p>Turbolinks 加速</p></li><li class="fragment"><p>UJS 抽取通用逻辑</p></li><li class="fragment"><p>SJR 实现局部更新</p></li><li class="fragment"><p>Assets Pipeline 管理静态文件</p></li><li class="fragment"><p>局部复杂逻辑使用前端组件 *</p></li></ul></div></section>
+<section><section><h2>Rails 前端思想</h2></section><section><h2>轻前端</h2></section><section><h2>代码重用</h2></section><section><h2>降低复杂度</h2></section><section><h2>减少代码</h2></section><section><h2>全局思维</h2></section></section>
+<section><h2>停止割裂前后端</h2><div class="imageblock" style=""><div class="content"><img src="images/wall.jpg" alt="wall"></div></div></section>
+<section><h2>不要被职位限制自己</h2><div class="imageblock" style=""><div class="content"><img src="images/freedom.jpg" alt="freedom" width="640px"></div></div></section>
+<section><h2>成为更优秀的 Web 开发者</h2><div class="imageblock" style=""><div class="content"><img src="images/dhh.jpg" alt="dhh" width="400px"></div></div></section>
+<section><h2>谢谢</h2><div class="paragraph"><p>by Rei, @chloerei</p></div></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: false,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'slide',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'fade',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 960,
+  height: 700,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script></body></html>
